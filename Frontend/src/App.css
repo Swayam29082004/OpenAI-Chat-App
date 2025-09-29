@@ -1,14 +1,12 @@
-* {
+*{
     color: #ececec;
-    font-family: Roboto, 'Open Sans', 'Helvetica Neue', sans-serif;
+    font-family: Roboto,'Open Sans','Helvetica newe',sans-serif;
 }
-
-body {
+body{
     margin: 0;
     padding: 0;
 }
-
-.app {
+.app{
     background-color: #212121;
     display: flex;
 }
