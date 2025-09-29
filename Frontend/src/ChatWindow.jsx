@@ -1,7 +1,7 @@
 import "./ChatWindow.css";
 import Chat from "./Chat.jsx";
 import { MyContext } from "./MyContext.jsx";
-import { useContext, useState, useEffect } from "react";
+import { useContext, useState, useEffect, useRef } from "react";
 import { PuffLoader } from "react-spinners";
 
 function ChatWindow() {
@@ -11,17 +11,18 @@ function ChatWindow() {
     reply,
     setReply,
     currThreadId,
-    prevChats,
-    setPrevChats,
+    setPrevChats, // ✅ only keep what’s used
   } = useContext(MyContext);
 
   const [loading, setLoading] = useState(false);
+  const lastUserPrompt = useRef(""); // ✅ store last user message
 
   const getReply = async () => {
-    if (!prompt.trim()) return; // ✅ prevent empty queries
+    if (!prompt.trim()) return; // prevent empty queries
 
     try {
       setLoading(true);
+      lastUserPrompt.current = prompt; // save user input before clearing
 
       const res = await fetch("http://localhost:8080/api/chat", {
         method: "POST",
@@ -35,8 +36,7 @@ function ChatWindow() {
       const data = await res.json();
       setReply(data.reply);
 
-      // ✅ move clearing here, so only once
-      setPrompt("");
+      setPrompt(""); // clear input
     } catch (err) {
       console.error("❌ Error fetching reply:", err);
     } finally {
@@ -49,11 +49,11 @@ function ChatWindow() {
     if (reply) {
       setPrevChats((prevChats) => [
         ...prevChats,
-        { role: "user", content: prompt },
+        { role: "user", content: lastUserPrompt.current },
         { role: "assistant", content: reply },
       ]);
     }
-  }, [reply]);
+  }, [reply, setPrevChats]);
 
   return (
     <div className="chatWindow">
